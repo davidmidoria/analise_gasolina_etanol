@@ -57,6 +57,9 @@ gas_eta['Estado - Sigla']=gas_eta['Estado - Sigla'].apply(lambda x:estados[x])
 # trocando o nome das siglas das regiões para o nome das regiões
 gas_eta['Regiao - Sigla']=gas_eta['Regiao - Sigla'].apply(lambda x:siglas_para_regioes[x])
 
+# manipulando o nome dos municipios
+gas_eta['Municipio']=gas_eta['Municipio'].apply(lambda x:x.replace(' ','\n'))
+
 # trocando o nome das colunas em quê o valor foi alterado
 gas_eta.rename(columns={'Estado - Sigla':'Estado','Regiao - Sigla':'Regiao'},inplace=True)
 
@@ -87,15 +90,15 @@ media_municipal=gas_eta.pivot_table(columns='Produto',index='Municipio',values='
 
 # dicionarios com os municipios com maior valor de combustivel 
  
-municipios_mais_caros={'GASOLINA':media_municipal['GASOLINA'].sort_values(ascending=False)[:3],
-'GASOLINA ADITIVADA':media_municipal['GASOLINA ADITIVADA'].sort_values(ascending=False)[:3],
-'ETANOL':media_municipal['ETANOL'].sort_values(ascending=False)[:3]}
+municipios_mais_caros={'GASOLINA':media_municipal['GASOLINA'].sort_values(ascending=False)[:5],
+'GASOLINA ADITIVADA':media_municipal['GASOLINA ADITIVADA'].sort_values(ascending=False)[:5],
+'ETANOL':media_municipal['ETANOL'].sort_values(ascending=False)[:5]}
 
 # dicionario com os municipios  mais baratos 
 
-municipios_mais_baratos={'GASOLINA':media_municipal['GASOLINA'].sort_values()[:3],
-'GASOLINA ADITIVADA':media_municipal['GASOLINA ADITIVADA'].sort_values()[:3],
-'ETANOL':media_municipal['ETANOL'].sort_values()[:3]}
+municipios_mais_baratos={'GASOLINA':media_municipal['GASOLINA'].sort_values()[:5],
+'GASOLINA ADITIVADA':media_municipal['GASOLINA ADITIVADA'].sort_values()[:5],
+'ETANOL':media_municipal['ETANOL'].sort_values()[:5]}
 
 # media no valor dos combustiveis
 
@@ -234,3 +237,12 @@ def media_gasolina_adit():
 
 def media_etanol():
     mapa_estados(media_por_estado['ETANOL'].sort_values(),'Estado','#aeb1f1','RoyalBlue','media estadual do etanol',cor_titulo='RoyalBlue')
+
+# gráfico com os 5 municipios mais baratos 
+def municipios_baratos():
+    barra_3(municipios_mais_baratos,'os municipios com menor  valor no combustivel')
+
+# gráfico com os 5 municipios mais caros 
+
+def municipios_caros():
+    barra_3(municipios_mais_caros,'os municipios com maior valor no combustivel')
