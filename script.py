@@ -38,7 +38,7 @@ siglas_para_regioes = {
     'S' :'Sul',
     'N' : 'Norte',
     'NE': 'Nordeste',
-    'CO': 'Centro-oeste'
+    'CO': 'Centro\noeste'
 }
 
 # retirando colunas que não serão utilizadas do DataSet
@@ -170,6 +170,13 @@ def criar_sub(obj,valor):
     obj.spines[['top', 'right', 'bottom', 'left']].set_visible(False)
     obj.set_title(f'{coluna}\n', fontsize=20, fontweight='bold', color=cor_da_barra(coluna)[-1])
 
+# rotulador de gráficos de barras horizontais  
+def rotulacao(ax, bars):
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'R${height:.2f}'.replace('.',','),xy=(bar.get_x() + bar.get_width() / 2, height-0.4),xytext=(0, 3),textcoords="offset points",ha='center', va='bottom',color='white',fontsize=12,fontstyle= 'italic',fontweight= 'bold')
+
+
 # criação de uma  imagem com três gráficos de barras 
 
 def barra_3(dicionario,titulo=''):
@@ -246,3 +253,34 @@ def municipios_baratos():
 
 def municipios_caros():
     barra_3(municipios_mais_caros,'Os Municipios com maior valor no combustivel')
+
+def grafico_regiao():
+    fig=plt.figure(figsize=(20,7))
+    g1=plt.subplot(131)
+    g2=plt.subplot(132)
+    g3=plt.subplot(133)
+    core=['royalblue','grey','grey','grey','#a51b0b']
+
+
+    rotulacao(g1,g1.bar(media_regiao_data.loc['ETANOL'].mean().sort_values().index,media_regiao_data.loc['ETANOL'].mean().sort_values().values,color=core))
+    g1.set_yticks([])
+    g1.set_xticks(media_regiao_data.loc['ETANOL'].mean().sort_values().index,media_regiao_data.loc['ETANOL'].mean().sort_values().index,color='black',fontweight= 'bold',fontsize=14, fontstyle= 'italic')
+    g1.spines[['top', 'right','left']].set_visible(False)
+    g1.set_title(f'etanol\n', fontsize=20, fontweight='bold', color='royalblue')
+
+
+    rotulacao(g2,g2.bar(media_regiao_data.loc['GASOLINA'].mean().sort_values().index,media_regiao_data.loc['GASOLINA'].mean().sort_values().values,color=core))
+    g2.set_yticks([])
+    g2.set_xticks(media_regiao_data.loc['GASOLINA'].mean().sort_values().index,media_regiao_data.loc['GASOLINA'].mean().sort_values().index,color='black',fontweight= 'bold',fontsize=14, fontstyle= 'italic')
+    g2.spines[['top', 'right','left']].set_visible(False)
+    g2.set_title(f'gasolina\n', fontsize=20, fontweight='bold', color='#a51b0b')
+
+    rotulacao(g3,g3.bar(media_regiao_data.loc['GASOLINA ADITIVADA'].mean().sort_values().index,media_regiao_data.loc['GASOLINA ADITIVADA'].mean().sort_values().values,color=core))
+    g3.set_yticks([])
+    g3.set_xticks(media_regiao_data.loc['GASOLINA ADITIVADA'].mean().sort_values().index,media_regiao_data.loc['GASOLINA ADITIVADA'].mean().sort_values().index,color='black',fontweight= 'bold',fontsize=14, fontstyle= 'italic')
+    g3.spines[['top', 'right','left']].set_visible(False)
+    g3.set_title(f'gasolina aditivada\n', fontsize=20, fontweight='bold', color='#d11507')
+
+    fig.suptitle('Media regional do valor do combustivel', fontsize=30, fontweight='bold', color='darkred',fontstyle= 'italic', x=0.05, ha='left')
+    plt.tight_layout(rect=[0, 0.10, 1, 0.9])
+    plt.subplots_adjust(wspace=0.4) 
