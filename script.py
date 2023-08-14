@@ -284,3 +284,42 @@ def grafico_regiao():
     fig.suptitle('Media regional do valor do combustivel', fontsize=30, fontweight='bold', color='darkred',fontstyle= 'italic', x=0.05, ha='left')
     plt.tight_layout(rect=[0, 0.10, 1, 0.9])
     plt.subplots_adjust(wspace=0.4) 
+
+def correlacao_combustivel():    
+    fig=plt.figure(figsize=(18,6))
+    g1=plt.subplot(131)
+    g2=plt.subplot(132)
+    g3=plt.subplot(133)
+
+
+    etanol= sns.heatmap(media_regiao_data.loc['ETANOL'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','Blue']), center=0, linewidths=.5, cbar=False,ax=g3)
+    etanol.set_title('Etanol \n', color='Blue', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
+
+    gasolina = sns.heatmap(media_regiao_data.loc['GASOLINA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#a51b0b']), center=0, linewidths=.5, cbar=False,ax=g2)
+    gasolina.set_title('Gasolina \n', color='#a51b0b', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
+
+    gasolina_aditivada = sns.heatmap(media_regiao_data.loc['GASOLINA ADITIVADA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#d11507']), center=0, linewidths=.5, cbar=False,ax=g1)
+    gasolina_aditivada.set_title('Gasolina Aditivada \n', color='#d11507', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
+    # Reduzir nomes exibidos no eixo x e y
+    g1.set_xticklabels(g1.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
+    g1.set_yticklabels(g1.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g1.set_ylabel('') 
+    g1.set_xlabel('') 
+
+    g2.set_xticklabels(g2.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
+    g2.set_yticklabels(g2.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g2.set_ylabel('') 
+    g2.set_xlabel('') 
+
+    g3.set_xticklabels(g3.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
+    g3.set_yticklabels(g3.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g3.set_ylabel('') 
+    g3.set_xlabel('') 
+
+
+    # Configurar rótulos do cbar
+    # cor_grafico = LinearSegmentedColormap.from_list('CustomColors', [corX,corY], N=27)# cor do gráfico de barras
+    fig.suptitle('Correlação entre os valores dos combustiveis Brasil', fontsize=30, fontweight='bold', color='darkred',fontstyle= 'italic', x=0.05, ha='left')
+    plt.tight_layout(rect=[0, 0.10, 1, 0.9])
+    plt.subplots_adjust(wspace=0.4) 
+    plt.show()
