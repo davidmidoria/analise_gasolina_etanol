@@ -6,9 +6,10 @@ import requests as rq
 import zipfile as zp
 import io
 import geopandas as gpd
-from matplotlib.colors import LinearSegmentedColormap as lsc
+from matplotlib.colors import LinearSegmentedColormap 
 import matplotlib.ticker as mticker
 import pandas as pd
+import numpy as np
 
 # importando arquivos 
 # URL do arquivo ZIP para mapa coroplético
@@ -77,9 +78,9 @@ media_por_estado=gas_eta.pivot_table(columns='Produto',index='Estado',values='Va
 
 # dicionario com os estados com maior valor de combustiveis por estado
 
-dic_combustives_estado={'ETANOL':media_por_estado['ETANOL'].sort_values(ascending=False)[:5],
+dic_combustives_estado={'GASOLINA_ADITIVADA':media_por_estado['GASOLINA ADITIVADA'].sort_values(ascending=False)[:5],
 'GASOLINA':media_por_estado['GASOLINA'].sort_values(ascending=False)[:5],
-'GASOLINA_ADT':media_por_estado['GASOLINA ADITIVADA'].sort_values(ascending=False)[:5]
+'ETANOL':media_por_estado['ETANOL'].sort_values(ascending=False)[:5]
 }
 #media municipal
 media_municipal=gas_eta.pivot_table(columns='Produto',index='Municipio',values='Valor de Venda', aggfunc='mean')
@@ -107,7 +108,7 @@ media_regiao_data=gas_eta.pivot_table(columns='Regiao',values='Valor de Venda',i
 
 # cores padrão dos gráficos
  
-cores={'GASOLINA ADITIVADA':'#d11507','GASOLINA':'#a51b0b','ETANOL':'skyblue'}
+cores={'GASOLINA ADITIVADA':'#d11507','GASOLINA':'#a51b0b','ETANOL':'RoyalBlue'}
 
 # uma função para encontrar o percentual de crescimento ou de queda, devolve uma string com o percentual é o nome
 def percentual(obj):
@@ -147,10 +148,11 @@ def titulos_rotulos(titulo,x_rotulo_a,x_rotulo_d,y_rotulo_a,y_rotulo_d):
 
 # cria o gráfico de barras ja com seus valores no interior da barra, obs esse coi contruido para inserir o dado no formato de uma moeda.
 
-def adicionar_rotulos(obj,barras):
+def adicionar_rotulos(obj,barras,font=15):
     for barra in barras:
         largura = barra.get_width()
-        obj.text(largura-0.5, barra.get_y() + barra.get_height() / 2, f'R${largura:.2f}'.replace('.',','), ha='right', va='center', color='white', fontweight='bold',fontsize=15)
+        obj.text(largura-0.5, barra.get_y() + barra.get_height() / 2, f'R${largura:.2f}'.replace('.',','), ha='right', va='center', color='white', fontweight='bold',fontsize=font)
+
 
 # cores que serão usadas para colorir as barras
 cor_da_barra=lambda x: ['grey','grey','grey','grey']+[cores[x]]
@@ -176,6 +178,31 @@ def barra_3(dicionario,titulo=''):
     plt.tight_layout(rect=[0, 0.10, 1, 0.9])
     plt.subplots_adjust(wspace=0.4) 
 
+# criação da função com o gráfico do Brasil
+def mapa_estados(obj,coluna,corX,corY,titulo,cor_titulo='maroon'):
+    estados_merged = brasil_estados.merge(obj, left_on='NM_UF', right_on=coluna)
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 8), gridspec_kw={'width_ratios': [0.6, 0.2]})# criar figura
+    cor_grafico = LinearSegmentedColormap.from_list('CustomColors', [corX,corY], N=27)# cor do gráfico de barras
+    
+    #gráfico da bandeira
+    estados_merged.plot(column=obj.name, cmap=LinearSegmentedColormap.from_list('CustomColors',[corX,corY]), legend=False, ax=axes[0])# gráfico bandeira
+    axes[0].set_xticks([])# configurações do mapa
+    axes[0].set_yticks([])
+    axes[0].spines[['top', 'right', 'bottom', 'left']].set_visible(False)
+    
+    #gráfico de barras
+    adicionar_rotulos(axes[1],plt.barh(obj.index,obj.to_list(), color=cor_grafico(np.linspace(0, 1, 27))),font=10)# gráfico de barras
+    axes[1].set_xticks([])# configurações do gráfico de barras
+    axes[1].set_yticks(obj.index.to_list(),obj.index.to_list(),color=corY,fontweight= 'bold',fontsize=11, fontstyle= 'italic')
+    axes[1].set_xticks([])
+    axes[1].spines[['top', 'right', 'bottom', 'left']].set_visible(False)
+
+    #Adicionar título centralizado
+    fig.suptitle(titulo, fontsize=20, fontweight='bold', color=cor_titulo,fontstyle= 'italic', ha='center')
+    plt.tight_layout  # Para acomodar o título acima dos gráficos
+    plt.show()
+
 
 # grafico de linha dos combustiveis
 def grafico_combustiveis():
@@ -195,3 +222,15 @@ def grafico_combustiveis():
 def estados_maior_preco():
     barra_3(dic_combustives_estado,'os estados com maior valor de combustivel')
 
+# grafico com a media da gasolina por estado
+def media_gasolina():
+    mapa_estados(media_por_estado['GASOLINA'].sort_values(),'Estado','#df927e','#a51b0b','media estadual da gasolina')
+
+# grafico com a media da gasolina aditivada
+def media_gasolina_adit():
+    mapa_estados(media_por_estado['GASOLINA ADITIVADA'].sort_values(),'Estado','#f89880','#d11507','media estadual da gasolina aditivada')
+
+# grafico com a media do etanol 
+
+def media_etanol():
+    mapa_estados(media_por_estado['ETANOL'].sort_values(),'Estado','#aeb1f1','RoyalBlue','media estadual do etanol',cor_titulo='RoyalBlue')
