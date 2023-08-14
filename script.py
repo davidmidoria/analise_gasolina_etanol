@@ -213,7 +213,7 @@ def grafico_combustiveis():
     data_e = ['1a Mai','2a Mai','3a Mai','4a Mai','1a Jun', '2a Jun', '3a Jun', '4a Jun', '1a Jul']
     valor_n=[4.0,4.5,5.0,5.5]
     valor_e=['R$ 4,00','R$ 4,50','R$ 5,00','R$ 5,50']
-    titulo='percentual de mudança nos valores do combustivel\nentre maio e junho'
+    titulo='Percentual de mudança nos valores do combustivel\nentre maio e junho'
     plt.figure(figsize=(8,4))
     linhas(mdc)
     quadro(['bottom','left'])
@@ -223,26 +223,26 @@ def grafico_combustiveis():
 #  grafico de barras contendo os estados com maior valor do preço da gasolina
 
 def estados_maior_preco():
-    barra_3(dic_combustives_estado,'os estados com maior valor de combustivel')
+    barra_3(dic_combustives_estado,'Os estados com maior valor de combustivel')
 
 # grafico com a media da gasolina por estado
 def media_gasolina():
-    mapa_estados(media_por_estado['GASOLINA'].sort_values(),'Estado','#df927e','#a51b0b','media estadual da gasolina')
+    mapa_estados(media_por_estado['GASOLINA'].sort_values(),'Estado','#df927e','#a51b0b','Media estadual da gasolina')
 
 # grafico com a media da gasolina aditivada
 def media_gasolina_adit():
-    mapa_estados(media_por_estado['GASOLINA ADITIVADA'].sort_values(),'Estado','#f89880','#d11507','media estadual da gasolina aditivada')
+    mapa_estados(media_por_estado['GASOLINA ADITIVADA'].sort_values(),'Estado','#f89880','#d11507','Media estadual da gasolina aditivada')
 
 # grafico com a media do etanol 
 
 def media_etanol():
-    mapa_estados(media_por_estado['ETANOL'].sort_values(),'Estado','#aeb1f1','RoyalBlue','media estadual do etanol',cor_titulo='RoyalBlue')
+    mapa_estados(media_por_estado['ETANOL'].sort_values(),'Estado','#aeb1f1','RoyalBlue','Media estadual do etanol',cor_titulo='RoyalBlue')
 
 # gráfico com os 5 municipios mais baratos 
 def municipios_baratos():
-    barra_3(municipios_mais_baratos,'os municipios com menor  valor no combustivel')
+    barra_3(municipios_mais_baratos,'Os Municipios com menor  valor no combustivel')
 
 # gráfico com os 5 municipios mais caros 
 
 def municipios_caros():
-    barra_3(municipios_mais_caros,'os municipios com maior valor no combustivel')
+    barra_3(municipios_mais_caros,'Os Municipios com maior valor no combustivel')
