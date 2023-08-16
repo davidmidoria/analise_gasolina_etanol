@@ -9,8 +9,21 @@ import geopandas as gpd
 from matplotlib.colors import LinearSegmentedColormap 
 import pandas as pd
 import numpy as np
+import unicodedata 
 
 # importando arquivos 
+
+# URL do arquivo ZIP para mapa coroplético de municipios
+link = "http://www.usp.br/nereus/wp-content/uploads/BR_Municipios_2021.zip"
+
+# Fazer o download do arquivo ZIP e extrair seu conteúdo
+respons = rq.get(link)
+zip_fil = zp.ZipFile(io.BytesIO(respons.content))
+zip_fil.extractall("/content/brasil_municipios_folder")
+
+# Importar o shapefile
+brasil_municipios = gpd.read_file("/content/brasil_municipios_folder/BR_Municipios_2021.shp")
+
 # URL do arquivo ZIP para mapa coroplético
 url = "http://www.usp.br/nereus/wp-content/uploads/BR_UF_2021.zip"
 
@@ -28,6 +41,10 @@ gas_eta_5=pd.read_csv('https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-a
 gas_eta_6=pd.read_csv('https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/dsan/2023/precos-gasolina-etanol-06.csv',sep=';')
 gas_eta=pd.concat([gas_eta_5,gas_eta_6])
 
+# dias da semana
+dia_semana={'2023-05-01': 'Segunda-feira', '2023-05-02': 'Terça-feira', '2023-05-03': 'Quarta-feira', '2023-05-04': 'Quinta-feira', '2023-05-05': 'Sexta-feira', '2023-05-06': 'Sábado', '2023-05-07': 'Domingo', '2023-05-08': 'Segunda-feira', '2023-05-09': 'Terça-feira', '2023-05-10': 'Quarta-feira', '2023-05-11': 'Quinta-feira', '2023-05-12': 'Sexta-feira', '2023-05-13': 'Sábado', '2023-05-14': 'Domingo', '2023-05-15': 'Segunda-feira', '2023-05-16': 'Terça-feira', '2023-05-17': 'Quarta-feira', '2023-05-18': 'Quinta-feira', '2023-05-19': 'Sexta-feira', '2023-05-20': 'Sábado', '2023-05-21': 'Domingo', '2023-05-22': 'Segunda-feira', '2023-05-23': 'Terça-feira', '2023-05-24': 'Quarta-feira', '2023-05-25': 'Quinta-feira', '2023-05-26': 'Sexta-feira', '2023-05-27': 'Sábado', '2023-05-28': 'Domingo', '2023-05-29': 'Segunda-feira', '2023-05-30': 'Terça-feira', '2023-05-31': 'Quarta-feira', '2023-06-01': 'Quinta-feira', '2023-06-02': 'Sexta-feira', '2023-06-03': 'Sábado', '2023-06-04': 'Domingo', '2023-06-05': 'Segunda-feira', '2023-06-06': 'Terça-feira', '2023-06-07': 'Quarta-feira', '2023-06-08': 'Quinta-feira', '2023-06-09': 'Sexta-feira', '2023-06-10': 'Sábado', '2023-06-11': 'Domingo', '2023-06-12': 'Segunda-feira', '2023-06-13': 'Terça-feira', '2023-06-14': 'Quarta-feira', '2023-06-15': 'Quinta-feira', '2023-06-16': 'Sexta-feira', '2023-06-17': 'Sábado', '2023-06-18': 'Domingo', '2023-06-19': 'Segunda-feira', '2023-06-20': 'Terça-feira', '2023-06-21': 'Quarta-feira', '2023-06-22': 'Quinta-feira', '2023-06-23': 'Sexta-feira', '2023-06-24': 'Sábado', '2023-06-25': 'Domingo', '2023-06-26': 'Segunda-feira', '2023-06-27': 'Terça-feira', '2023-06-28': 'Quarta-feira', '2023-06-29': 'Quinta-feira', '2023-06-30': 'Sexta-feira'}
+
+
 # estados da união 
 estados = {"AC": "Acre","AL": "Alagoas","AP": "Amapá","AM": "Amazonas","BA": "Bahia","CE": "Ceará","DF": "Distrito Federal","ES": "Espírito Santo","GO": "Goiás","MA": "Maranhão","MT": "Mato Grosso","MS": "Mato Grosso do Sul","MG": "Minas Gerais","PA": "Pará","PB": "Paraíba","PR": "Paraná","PE": "Pernambuco","PI": "Piauí","RJ": "Rio de Janeiro","RN": "Rio Grande do Norte","RS": "Rio Grande do Sul","RO": "Rondônia","RR": "Roraima","SC": "Santa Catarina","SP": "São Paulo","SE": "Sergipe","TO": "Tocantins"}
 
@@ -43,6 +60,11 @@ siglas_para_regioes = {
 # retirando colunas que não serão utilizadas do DataSet
 
 gas_eta=pd.DataFrame(gas_eta,columns=['Regiao - Sigla','Estado - Sigla','Municipio','Produto','Data da Coleta','Valor de Venda','Bandeira'])
+
+# criando a coluna com os dias da semana
+
+gas_eta['Dia da Semana']=gas_eta['Data da Coleta']
+gas_eta['Dia da Semana']=gas_eta['Dia da Semana'].apply(lambda x: dia_semana['-'.join(x.split('/')[::-1])])
 
 # transformando os dados da coluna valor da venda para float
 gas_eta['Valor de Venda']=gas_eta['Valor de Venda'].apply(lambda x: float(x.replace(',','.')))
@@ -170,10 +192,10 @@ def criar_sub(obj,valor):
     obj.set_title(f'{coluna}\n', fontsize=20, fontweight='bold', color=cor_da_barra(coluna)[-1])
 
 # rotulador de gráficos de barras horizontais  
-def rotulacao(ax, bars,s1='R$',s2='',altura=0.4):
+def rotulacao(ax, bars,s1='R$',s2='',altura=0.4,font=12):
     for bar in bars:
         height = bar.get_height()
-        ax.annotate(f'{s1}{height:.2f}{s2}'.replace('.',','),xy=(bar.get_x() + bar.get_width() / 2, height-altura),xytext=(0, 3),textcoords="offset points",ha='center', va='bottom',color='white',fontsize=12,fontstyle= 'italic',fontweight= 'bold')
+        ax.annotate(f'{s1}{height:.2f}{s2}'.replace('.',','),xy=(bar.get_x() + bar.get_width() / 2, height-altura),xytext=(0, 3),textcoords="offset points",ha='center', va='bottom',color='white',fontsize=font,fontstyle= 'italic',fontweight= 'bold')
 
 
 # criação de uma  imagem com três gráficos de barras 
@@ -377,4 +399,59 @@ def correlacao_combustivel():
     fig.suptitle('Correlação entre os valores dos combustiveis Brasil', fontsize=30, fontweight='bold', color='darkred',fontstyle= 'italic', x=0.05, ha='left')
     plt.tight_layout(rect=[0, 0.10, 1, 0.9])
     plt.subplots_adjust(wspace=0.4) 
+    plt.show()
+
+# Função para remover acentuação
+def remove_accent(text):
+    return ''.join(c for c in unicodedata.normalize('NFKD', text) if not unicodedata.combining(c))
+
+# Remover acentos e padronizar formatação da coluna "Municipio" em df_combustivel
+brasil_municipios['NM_MUN'] = brasil_municipios['NM_MUN'].apply(lambda x: remove_accent(x.upper()))
+
+def panzer():
+    municipios=gas_eta[['Municipio','Produto']].copy()
+    municipios['Municipio']=municipios['Municipio'].apply(lambda x:x.replace('\n',' '))
+
+    # Realizar o merge com base na coluna "Municipio"
+    municipios_merged = brasil_municipios.merge(municipios, left_on='NM_MUN', right_on='Municipio', how='left')
+    # Definir cores para os tipos de combustível
+    tipo_to_color = {
+        'GASOLINA ADITIVADA': 'red',
+        'GASOLINA': 'darkred',
+        'ETANOL': 'darkblue'}
+
+    # Plotar o mapa com pontos coloridos para indicar o tipo de combustível
+    fig, ax = plt.subplots(figsize=(12, 8))
+    brasil_municipios.plot(linewidth=0.01, ax=ax, color='silver', edgecolor='lightgray')
+
+    # Plotar os pontos coloridos
+    for index, row in municipios_merged.iterrows():
+        if row['Produto'] in tipo_to_color:  # Verificar se o tipo de combustível está na lista
+            centroid = row['geometry'].centroid
+            ax.plot(centroid.x, centroid.y, marker='o', color=tipo_to_color[row['Produto']], markersize=2)
+
+    # Configurar legenda
+    legend_labels = {v: k for k, v in tipo_to_color.items()}
+    handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=c, markersize=10, label=legend_labels[c]) for c in tipo_to_color.values()]
+    legend = ax.legend(handles=handles, title='Tipo de Combustível', prop={'size': 8})
+
+    # Remover informações, labels, índices, eixos e grades
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines[['top', 'right', 'bottom', 'left']].set_visible(False)
+    plt.xlabel('')
+    plt.ylabel('')
+    plt.title('Distribuição da coleta de dados dos Combustíveis', color='maroon', fontweight='bold', fontsize=15, fontstyle='italic', loc='right')
+    plt.show()
+
+
+def lancamento_dados():
+    percentuall_semana=gas_eta['Dia da Semana'].value_counts()/gas_eta['Dia da Semana'].value_counts().sum()*100
+    plt.figure(figsize=(10,7))
+    rotulacao(plt,plt.bar(percentuall_semana.index,percentuall_semana.values),altura=1.5,s1='',s2='%',font=10)
+    quadro(['bottom'])
+    plt.xticks(percentuall_semana.index,color='black',fontweight= 'bold',fontsize=10, fontstyle= 'italic')
+    plt.tick_params(axis='both',color='grey')
+    plt.yticks([])
+    plt.title('lançamento diario dos dados\n\n\n',color='royalblue',fontweight= 'bold',fontsize=15, fontstyle= 'italic',loc='left')
     plt.show()
