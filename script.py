@@ -7,7 +7,6 @@ import zipfile as zp
 import io
 import geopandas as gpd
 from matplotlib.colors import LinearSegmentedColormap 
-import matplotlib.ticker as mticker
 import pandas as pd
 import numpy as np
 
@@ -171,10 +170,10 @@ def criar_sub(obj,valor):
     obj.set_title(f'{coluna}\n', fontsize=20, fontweight='bold', color=cor_da_barra(coluna)[-1])
 
 # rotulador de gráficos de barras horizontais  
-def rotulacao(ax, bars):
+def rotulacao(ax, bars,s1='R$',s2='',altura=0.4):
     for bar in bars:
         height = bar.get_height()
-        ax.annotate(f'R${height:.2f}'.replace('.',','),xy=(bar.get_x() + bar.get_width() / 2, height-0.4),xytext=(0, 3),textcoords="offset points",ha='center', va='bottom',color='white',fontsize=12,fontstyle= 'italic',fontweight= 'bold')
+        ax.annotate(f'{s1}{height:.2f}{s2}'.replace('.',','),xy=(bar.get_x() + bar.get_width() / 2, height-altura),xytext=(0, 3),textcoords="offset points",ha='center', va='bottom',color='white',fontsize=12,fontstyle= 'italic',fontweight= 'bold')
 
 
 # criação de uma  imagem com três gráficos de barras 
@@ -213,6 +212,58 @@ def mapa_estados(obj,coluna,corX,corY,titulo,cor_titulo='maroon'):
     plt.tight_layout  # Para acomodar o título acima dos gráficos
     plt.show()
 
+# tira o percentual pega os 4 maiores e soma o resto
+def media_5(quantidade_item,nome_extra):
+    percentual=(quantidade_item/quantidade_item.sum())*100
+    quatro_maiores=percentual[:4]
+    quatro_maiores[nome_extra]=percentual[4:].sum()
+    return quatro_maiores
+
+# pega os itens definidos previamente e tira uma media entre os demais 
+
+def escolher_item(itens,itens_filtro,demais_itens):
+    itens_f=itens[itens_filtro]
+    itens_f[demais_itens]=itens.drop(itens_filtro).mean()
+    return itens_f.sort_values()
+
+# grafico da correlação entre as bandeiras
+
+def grafico_correlacao(cor,titulo,item,cor2='white'):
+
+    maiores_media=media_5(gas_eta['Bandeira'][gas_eta['Produto']==item].value_counts(),'Outras Bandeiras')
+    media_combustiveis=gas_eta.pivot_table(columns='Bandeira',index=['Produto','Data da Coleta'],values='Valor de Venda', aggfunc='mean')
+    media_diaria_b=media_combustiveis[maiores_media[:4].index].copy()
+    media_diaria_b[maiores_media[4:].index[0]]=media_combustiveis.drop(columns=maiores_media[:4].index).T.mean()
+    media_valor=escolher_item(media_combustiveis.loc[item].mean(),maiores_media[:4].index,maiores_media[4:].index[0])
+
+    fig=plt.figure(figsize=(20,7))
+    g1=plt.subplot(131)
+    g2=plt.subplot(132)
+    g3=plt.subplot(133)
+
+    rotulacao(g1,g1.bar(maiores_media.index,maiores_media.values,color=cor),s1='',s2='%',altura=2.8)
+    g1.set_yticks([])
+    g1.set_xticks(maiores_media.index,(i.replace(' ','\n')for i in maiores_media.index),color='grey',fontweight= 'bold',fontsize=12, fontstyle= 'italic')
+    g1.spines[['top', 'right','left']].set_visible(False)
+    g1.set_title(f'participação de mercado\n', fontsize=20, fontweight='bold', color=cor)
+
+
+    adicionar_rotulos(g2,g2.barh(media_valor.index,media_valor.values,color=cor))
+    g2.set_yticks(media_valor.index,media_valor.index,color='grey',fontweight= 'bold',fontsize=15, fontstyle= 'italic')
+    g2.set_xticks([])
+    g2.spines[['top', 'right','left']].set_visible(False)
+    g2.set_title(f'preço medio das bandeiras\n', fontsize=20, fontweight='bold', color=cor)
+
+    sns.heatmap(media_diaria_b.loc[item].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',[cor2,cor]), center=0, linewidths=.5, cbar=False,ax=g3,annot_kws={"size": 15,'fontweight':'bold'})
+    g3.set_xticklabels((i.replace(' ','\n')for i in media_diaria_b.loc[item].corr().index ), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
+    g3.set_yticklabels((i.replace(' ','\n')for i in media_diaria_b.loc[item].corr().index ), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g3.set_title(f'correlação entre as bandeiras\n', fontsize=20, fontweight='bold', color=cor)
+    g3.set_ylabel('') 
+    g3.set_xlabel('') 
+
+    fig.suptitle(titulo, fontsize=30, fontweight='bold', color=cor,fontstyle= 'italic', x=0.05, ha='left')
+    plt.tight_layout(rect=[0, 0.10, 1, 0.9])
+    plt.subplots_adjust(wspace=0.4) 
 
 # grafico de linha dos combustiveis
 def grafico_combustiveis():
@@ -226,6 +277,7 @@ def grafico_combustiveis():
     quadro(['bottom','left'])
     titulos_rotulos(titulo,datas_n,data_e,valor_n,valor_e)
     plt.show()
+
 
 #  grafico de barras contendo os estados com maior valor do preço da gasolina
 
@@ -253,6 +305,8 @@ def municipios_baratos():
 
 def municipios_caros():
     barra_3(municipios_mais_caros,'Os Municipios com maior valor no combustivel')
+
+# gráfico contendo os valores medios de combustiveis de cada região 
 
 def grafico_regiao():
     fig=plt.figure(figsize=(20,7))
@@ -285,6 +339,7 @@ def grafico_regiao():
     plt.tight_layout(rect=[0, 0.10, 1, 0.9])
     plt.subplots_adjust(wspace=0.4) 
 
+# gráfico da correlção entre combustiveis 
 def correlacao_combustivel():    
     fig=plt.figure(figsize=(18,6))
     g1=plt.subplot(131)
@@ -292,27 +347,27 @@ def correlacao_combustivel():
     g3=plt.subplot(133)
 
 
-    etanol= sns.heatmap(media_regiao_data.loc['ETANOL'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','Blue']), center=0, linewidths=.5, cbar=False,ax=g3)
+    etanol= sns.heatmap(media_regiao_data.loc['ETANOL'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','Blue']), center=0, linewidths=.5, cbar=False,ax=g3,annot_kws={"size": 15,'fontweight':'bold'})
     etanol.set_title('Etanol \n', color='Blue', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
 
-    gasolina = sns.heatmap(media_regiao_data.loc['GASOLINA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#a51b0b']), center=0, linewidths=.5, cbar=False,ax=g2)
+    gasolina = sns.heatmap(media_regiao_data.loc['GASOLINA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#a51b0b']), center=0, linewidths=.5, cbar=False,ax=g2,annot_kws={"size": 15,'fontweight':'bold'})
     gasolina.set_title('Gasolina \n', color='#a51b0b', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
 
-    gasolina_aditivada = sns.heatmap(media_regiao_data.loc['GASOLINA ADITIVADA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#d11507']), center=0, linewidths=.5, cbar=False,ax=g1)
+    gasolina_aditivada = sns.heatmap(media_regiao_data.loc['GASOLINA ADITIVADA'].corr(), annot=True, cmap=LinearSegmentedColormap.from_list('CustomColors',['white','#d11507']), center=0, linewidths=.5, cbar=False,ax=g1,annot_kws={"size": 15,'fontweight':'bold'})
     gasolina_aditivada.set_title('Gasolina Aditivada \n', color='#d11507', fontweight='bold', fontsize=15, fontstyle='italic', loc='left')
     # Reduzir nomes exibidos no eixo x e y
     g1.set_xticklabels(g1.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
-    g1.set_yticklabels(g1.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g1.set_yticklabels(g1.get_yticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
     g1.set_ylabel('') 
     g1.set_xlabel('') 
 
     g2.set_xticklabels(g2.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
-    g2.set_yticklabels(g2.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g2.set_yticklabels(g2.get_yticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
     g2.set_ylabel('') 
     g2.set_xlabel('') 
 
     g3.set_xticklabels(g3.get_xticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')  # Rótulos do eixo X rotacionados em 45 graus
-    g3.set_yticklabels(g3.get_yticklabels(), rotation=45,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
+    g3.set_yticklabels(g3.get_yticklabels(), rotation=0,color='grey',fontsize=12, fontweight='bold',fontstyle= 'italic')
     g3.set_ylabel('') 
     g3.set_xlabel('') 
 
