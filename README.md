@@ -42,6 +42,8 @@ Obtivemos os arquivos dos dois últimos meses do ano atual, os quais contêm a s
 A utilização desses dados confiáveis e abrangentes nos permite conduzir uma análise robusta e informada sobre as tendências e comportamentos dos preços dos combustíveis, fornecendo insights valiosos para a ANP e para o setor como um todo.
 
 ---
+![Mapa por Coleta](https://github.com/davidmidoria/analise_gasolina_etanol/blob/main/Imagens/Mapa%20por%20Coleta.png?raw=true)
+---
 
 ## <center> <font color = 'seagreen'> **Perguntas a serem Respondidas** </font> </center>
 
@@ -109,20 +111,58 @@ Essas tecnologias e ferramentas foram fundamentais para a análise dos dados e a
 
 ---
 
-## <center> <font color = 'seagreen'> **Instruções de Uso** </font> </center>
+## <center> <font color = 'seagreen'> **Guia de Utilização** </font> </center>
 
-Na pasta (), você encontrará os arquivos necessários para explorar a análise de dados das séries históricas de combustíveis no Brasil.
+Siga as instruções abaixo para obter insights valiosos a partir dos arquivos fornecidos.
 
-### Arquivo .py (Códigos e Construção):
+### Pasta "Arquivos_Relatório" (Arquivos e Conjunto de Dados):
 
-- Este arquivo contém todos os códigos que foram desenvolvidos para realizar a análise e construção do projeto.
-- Os códigos estão organizados e comentados para facilitar a compreensão.
+A pasta "Arquivos_Relatório" contém os recursos utilizados na construção do relatório final, você encontrará os arquivos necessários para explorar a análise de dados das séries históricas de combustíveis no Brasil. Estes arquivos devem ser clonados ou baixados para a maquina na mesma pasta para correto funcionamento.
 
-### Arquivo .ipynb (Demonstrações e Respostas/Insights):
+### Arquivo "script.py" (Códigos e Estrutura do Projeto):
 
-- Abra o arquivo .ipynb no ambiente do Jupyter Notebook ou Google Colab.
-- Utilize células de código para executar as demonstrações de tabelas, gráficos ou cálculos que você deseja apresentar.
-- As células Markdown fornecem as respostas e insights correspondentes a cada pergunta e tópico analisado.
+- O arquivo "script.py" contém todos os códigos desenvolvidos para realizar a análise e construção deste projeto.
+- Os códigos estão organizados e adequadamente comentados para proporcionar clareza e compreensão.
+
+### Arquivo "Relatório_combustiveis.ipynb" (Demonstrações e Insights):
+
+- Abra o arquivo "Relatório_combustiveis.ipynb" no ambiente do Jupyter Notebook ou Google Colab.
+- Utilize as células de código disponíveis para executar as demonstrações de tabelas, gráficos ou cálculos que você desejar apresentar.
+- As células formatadas como Markdown contêm as respostas e insights correspondentes a cada pergunta e tópico analisado.
+
+## Arquivo "Petróleo Brent Futuros Dados Históricos" (CSV):
+
+- O arquivo "Petróleo Brent Futuros Dados Históricos" está disponibilizado no formato CSV.
+- Esse arquivo contém os dados do Petróleo utilizados para responder à pergunta 13 da análise.
+- Certifique-se de clonar ou baixar esse arquivo para sua máquina e mantê-lo na mesma localização do projeto.
+
+### Configurações Necessárias:
+
+Antes de prosseguir, certifique-se de que você tenha as seguintes configurações em seu ambiente:
+
+- Python instalado em sua máquina.
+- Jupyter Notebook ou Google Colab para visualização e execução dos notebooks.
+
+### Bibliotecas Utilizadas:
+
+As seguintes bibliotecas foram utilizadas neste projeto para análise e visualização de dados:
+
+***matplotlib.pyplot as plt
+seaborn as sns
+requests as rq
+zipfile as zp
+io
+geopandas as gpd
+matplotlib.colors - LinearSegmentedColormap
+pandas as pd
+numpy as np
+unicodedata***
+
+Certas bibliotecas serão necessárias para executar os códigos. Você pode instalá-las utilizando o comando pip install nome_da_biblioteca.
+Certifique-se de ter essas bibliotecas instaladas para evitar problemas de execução.
+
+
+Aproveite ao máximo esta análise de dados das séries históricas de combustíveis no Brasil. Sinta-se à vontade para explorar, executar os códigos e extrair insights relevantes para suas análises. Se tiver alguma dúvida, consulte a documentação das bibliotecas mencionadas.
 
 ---
 
