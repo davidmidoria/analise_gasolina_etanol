@@ -444,7 +444,7 @@ def panzer():
     plt.title('Distribuição da coleta de dados dos Combustíveis', color='maroon', fontweight='bold', fontsize=15, fontstyle='italic', loc='right')
     plt.show()
 
-
+# grafico lançamento de dados 
 def lancamento_dados():
     percentuall_semana=gas_eta['Dia da Semana'].value_counts()/gas_eta['Dia da Semana'].value_counts().sum()*100
     plt.figure(figsize=(10,7))
@@ -454,4 +454,79 @@ def lancamento_dados():
     plt.tick_params(axis='both',color='grey')
     plt.yticks([])
     plt.title('lançamento diario dos dados\n\n\n',color='royalblue',fontweight= 'bold',fontsize=15, fontstyle= 'italic',loc='left')
+    plt.show()
+
+# grafico petroleo
+def petro():
+    brent=pd.read_csv('Petróleo Brent Futuros Dados Históricos.csv',sep=',',engine='c', encoding='UTF-8')
+    df_brent= pd.DataFrame(brent)
+    df_brent = df_brent[['Data','Abertura']]
+    # mudando index
+    df_brent['Abertura']=df_brent['Abertura'].apply(lambda x: float(x.replace(',','.')))
+    # precisa mudar para o tipo numérico, antes de plotar
+    df_brent[['Abertura']] = df_brent[['Abertura']].apply(pd.to_numeric, errors='coerce')
+    # Convertendo a coluna 'Data' para datetime
+    df_brent['Data'] = pd.to_datetime(df_brent['Data'], format='%d.%m.%Y')
+
+    # Ordenando o DataFrame por data mais antiga primeiro
+    df_brent = df_brent.sort_values(by='Data')
+    # Plotando o gráfico
+    plt.figure(figsize=(10, 6))
+    plt.style.use('default')  # Estilo
+    plt.plot(df_brent['Data'], df_brent['Abertura'], color='darkslategray',linewidth=2.5)
+    plt.scatter(df_brent['Data'].iloc[0], df_brent['Abertura'].iloc[0], color='red')
+    plt.scatter(df_brent['Data'].iloc[-1], df_brent['Abertura'].iloc[-1], color='red')
+    plt.xlabel('')
+    plt.ylabel('Preço de Abertura ($)',color='gray',fontweight= 'bold',fontsize=10, fontstyle= 'italic')
+    plt.gca().spines[['right','top']].set_visible(False)
+    plt.gca().spines[['bottom','left']].set_color('grey')
+    plt.xticks(color='grey',rotation=45)
+    plt.tick_params(axis='both',color='grey')
+    plt.yticks(color='grey')
+    plt.title('Preços de Abertura do Petróleo Brent\n por Semana em Maio\n',color='maroon',fontweight= 'bold',fontsize=15, fontstyle= 'italic',loc='left')
+    # Configurando o formato do eixo y para mostrar os preços em $xx,xx
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'${x:.2f}'))
+    plt.show()
+
+    
+def gasolina_5():
+    gasolina_5=gas_eta[gas_eta['Data da Coleta']<pd.to_datetime('2023-06-01')]
+    gasolina_5=gasolina_5[gasolina_5['Produto']=='GASOLINA']['Valor de Venda'].groupby(gasolina_5[gasolina_5['Produto']=='GASOLINA']['Data da Coleta']).mean()
+    # Plotando o gráfico
+    plt.figure(figsize=(10, 6))
+    plt.style.use('default')  # Estilo
+    plt.plot(gasolina_5.index,gasolina_5.values, color='darkred',linewidth=2.5)
+    plt.scatter(gasolina_5.index,gasolina_5.values, color='darkred')
+    plt.scatter(gasolina_5.index,gasolina_5.values, color='darkred')
+    plt.xlabel('')
+    plt.ylabel('Media do Valor de Venda (R$)',color='gray',fontweight= 'bold',fontsize=10, fontstyle= 'italic')
+    plt.gca().spines[['right','top']].set_visible(False)
+    plt.gca().spines[['bottom','left']].set_color('grey')
+    plt.xticks(color='grey',rotation=45)
+    plt.tick_params(axis='both',color='grey')
+    plt.yticks(color='grey')
+    plt.title('Media do Valor de Venda da Gasolina comum\n por Semana em Maio\n',color='maroon',fontweight= 'bold',fontsize=15, fontstyle= 'italic',loc='left')
+    # Configurando o formato do eixo y para mostrar os preços em R$xx,xx
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'R${x:.2f}'))
+    plt.show()
+
+def gasolina_6():
+    # Plotando o gráfico
+    gasolina_6=gas_eta[gas_eta['Data da Coleta']>=pd.to_datetime('2023-06-01')]
+    gasolina_6=gasolina_6[gasolina_6['Produto']=='GASOLINA']['Valor de Venda'].groupby(gasolina_6[gasolina_6['Produto']=='GASOLINA']['Data da Coleta']).mean()
+    plt.figure(figsize=(10, 6))
+    plt.style.use('default')  # Estilo  
+    plt.plot(gasolina_6.index,gasolina_6.values, color='darkred',linewidth=2.5)
+    plt.scatter(gasolina_6.index,gasolina_6.values, color='darkred')
+    plt.scatter(gasolina_6.index,gasolina_6.values, color='darkred')
+    plt.xlabel('')
+    plt.ylabel('Media do Valor de Venda (R$)',color='gray',fontweight= 'bold',fontsize=10, fontstyle= 'italic')
+    plt.gca().spines[['right','top']].set_visible(False)
+    plt.gca().spines[['bottom','left']].set_color('grey')
+    plt.xticks(color='grey',rotation=45)
+    plt.tick_params(axis='both',color='grey')
+    plt.yticks(color='grey')
+    plt.title('Media do Valor de Venda da Gasolina comum\n por Semana em junho\n',color='maroon',fontweight= 'bold',fontsize=15, fontstyle= 'italic',loc='left')
+    # Configurando o formato do eixo y para mostrar os preços em R$xx,xx
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'R${x:.2f}'))
     plt.show()
